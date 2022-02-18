@@ -19,7 +19,11 @@ class MainWindow(QMainWindow):
 
         self.photo_label = QLabel(self)
         self.photo_label.move(50, 50)
-        self.photo_label.resize(600, 400)  # 1200 * 800
+        self.photo_label.resize(600, 400)
+        
+        self.text_label = QLabel(self)
+        self.text_label.move(20, 580)
+        self.text_label.resize(680, 18)
 
         self.btn = QPushButton('Получить фотографию', self)
         self.btn.resize(300, 70)
@@ -27,10 +31,14 @@ class MainWindow(QMainWindow):
         self.btn.clicked.connect(self.get_and_pull_image)
 
     def get_and_pull_image(self):
-        print('knopka nazhata')
-        binary_image = client()
-        print(binary_image)
-        self.pull_image(binary_image)
+        self.text_label.setText("Data receiving")
+        try:
+            print(1)
+            binary_image = client()
+            print(binary_image)
+            self.pull_image(binary_image)
+        except Exception as ex:
+            self.text_label.setText(f"Error: {ex}")
 
 
     def pull_image(self, img):
@@ -44,6 +52,7 @@ class MainWindow(QMainWindow):
                 self.pixmap = QPixmap(img_name)
                 self.photo_label.setPixmap(self.pixmap)
                 self.image.save(img_name)
+                self.text_label.clear()
                 break
             except PermissionError:
                 QMessageBox.critical(self, 'Ошибка!',
