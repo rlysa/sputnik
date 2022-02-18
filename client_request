@@ -4,15 +4,24 @@ Python sockets (with Python 3.3 or above).
 """
 
 import socket
+import sys
+import base64
 
-SERVER_MAC_ADDRESS = 'B8:27:EB:BC:FC:E9'
-PORT = 11
-s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-s.connect((SERVER_MAC_ADDRESS, PORT))
-while 1:
-    text = input()
-    if text == "quit":
-        break
-    s.send(bytes(text, 'UTF-8'))
-    print(s.recv(1024))
-s.close()
+
+def client():
+    SERVER_MAC_ADDRESS = 'B8:27:EB:CC:C9:0C'
+    PORT = 11
+    SIZE = 1024 * 1024
+    s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+    s.connect((SERVER_MAC_ADDRESS, PORT))
+    s.send(b'request img')
+    img = b''
+    while 1:
+        data = s.recv(SIZE)
+        if data == b'END_FILE':
+            break
+        img += data
+    print('photo got sended')
+    decoded_image = base64.decodebytes(img)
+    s.close()
+    return decoded_image
