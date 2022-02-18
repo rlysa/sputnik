@@ -4,23 +4,26 @@ Bluetooth using Python sockets (with Python 3.3 or above).
 """
 
 import socket
+from program import request_img
 
-HOST_MAC_ADDRESS = 'b8:27:eb:bc:fc:e9'
+
+HOST_MAC_ADDRESS = 'b8:27:eb:cc:c9:0C'
 PORT = 11
 backlog = 1
 size = 1024 * 1024 * 4
 s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
 s.bind((HOST_MAC_ADDRESS, PORT))
 s.listen(backlog)
-try:
-    client, address = s.accept()
-    while 1:
+while 1:
+    try:
+        client, address = s.accept()
         data = client.recv(size)
-        if data:
-            print(data)
-            client.send(data)
-except:
-    print("Closing socket")
-    client.close()
-    s.close()
-
+        if data == b'request img':
+            img = request_img()
+            client.send(img)
+            client.send(b'END_FILE')
+            print('photo sended')
+    except:
+        print("Closing socket")
+        client.close()
+        s.close()
