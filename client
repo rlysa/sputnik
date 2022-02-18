@@ -46,10 +46,10 @@ def send_file(camera, s):
 try:
     s = connection()
     camera = picamera.PiCamera()
-    send_file(camera, s)
-    '''schedule.every(60).seconds.do(lambda: send(camera))
+    # send_file(camera, s)
+    schedule.every(60).seconds.do(lambda: send_file(camera, s))
     while 1:
-        schedule.run_pending()'''
+        schedule.run_pending()
 
 finally:
     camera.close()
