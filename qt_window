@@ -1,0 +1,63 @@
+import sys
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QFileDialog, QMessageBox
+from PIL import Image
+from io import BytesIO
+import datetime as dt
+from client_request import client
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.directory = None
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(400, 100, 700, 600)
+        self.setWindowTitle('program')
+
+        self.photo_label = QLabel(self)
+        self.photo_label.move(50, 50)
+        self.photo_label.resize(600, 400)  # 1200 * 800
+
+        self.btn = QPushButton('Получить фотографию', self)
+        self.btn.resize(300, 70)
+        self.btn.move(190, 480)
+        self.btn.clicked.connect(self.get_and_pull_image)
+
+    def get_and_pull_image(self):
+        print('knopka nazhata')
+        binary_image = client()
+        print(binary_image)
+        self.pull_image(binary_image)
+
+
+    def pull_image(self, img):
+        while True:
+            try:
+                if not self.directory:
+                    self.directory = QFileDialog.getExistingDirectory(self, 'Выберите папку')
+                self.image = Image.open(BytesIO(img))
+                img_name = f'{self.directory}/{dt.datetime.now().strftime("%Y%b%d-%H%M%S")}.jpg'
+                self.image.resize((600, 400)).save(img_name)
+                self.pixmap = QPixmap(img_name)
+                self.photo_label.setPixmap(self.pixmap)
+                self.image.save(img_name)
+                break
+            except PermissionError:
+                QMessageBox.critical(self, 'Ошибка!',
+                                     'Папка не выбрана или к ней нет доступа', QMessageBox.Ok)
+                self.directory = QFileDialog.getExistingDirectory(self, 'Выберите папку')
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = MainWindow()
+    ex.show()
+    sys.excepthook = except_hook
+    sys.exit(app.exec())
