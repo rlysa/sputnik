@@ -1,0 +1,36 @@
+#!/bin/python3
+
+
+import RPi.GPIO as GPIO
+import picamera
+import base64
+
+
+PATH = '/home/pi/image.jpg'
+
+
+def take_photo(camera):
+    camera.capture(PATH)
+
+
+def encode():
+    with open(PATH, 'rb') as binary_file:
+        binary_file_data = binary_file.read()
+        encoded_file = base64.b64encode(binary_file_data)
+    return encoded_file
+
+
+def send_file(camera):
+    take_photo(camera)
+    encoded_file = encode()
+    return encoded_file
+
+
+def request_img():
+    try:                                  
+        camera = picamera.PiCamera()
+        data = send_file(camera)
+        return data
+    finally:
+        camera.close()
+        GPIO.cleanup()
