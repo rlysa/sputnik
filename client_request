@@ -18,9 +18,10 @@ def client():
     img = b''
     while 1:
         data = s.recv(SIZE)
-        if data == b'END_FILE':
-            break
         img += data
+        if data[-8:] == b'END_FILE':
+            img = img[:-8]
+            break
     print('photo got sended')
     decoded_image = base64.decodebytes(img)
     s.close()
