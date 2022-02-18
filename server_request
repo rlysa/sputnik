@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 A simple Python script to receive messages from a client over
 Bluetooth using Python sockets (with Python 3.3 or above).
