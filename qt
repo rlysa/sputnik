@@ -1,0 +1,54 @@
+import sys
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel
+from PIL import Image
+from io import BytesIO
+import datetime as dt
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setGeometry(400, 100, 700, 600)
+        self.setWindowTitle('program')
+
+        self.photo_label = QLabel(self)
+        self.photo_label.move(50, 50)
+        self.photo_label.resize(600, 400)  # 1200 * 800
+
+        self.btn = QPushButton('Получить фотографию', self)
+        self.btn.resize(300, 70)
+        self.btn.move(190, 480)
+        self.btn.clicked.connect(self.get_and_pull_image)
+
+    def get_and_pull_image(self):
+        binary_image = self.send_request_get_img()  # какая-то функция отправляющая запрос и возвращающая картинку
+        self.pull_image(binary_image)
+
+    def send_request_get_img(self):  # для теста просто
+        with open('image.jpg', 'rb') as file:
+            img = file.read()
+        return img
+
+    def pull_image(self, img):
+        self.image = Image.open(BytesIO(img)).resize((600, 400))
+        img_name = f'photos/{dt.datetime.now().strftime("%Y%b%d-%H%M%S")}.jpg'
+        self.image.save(img_name)
+        self.pixmap = QPixmap(img_name)
+        self.photo_label.setPixmap(self.pixmap)
+
+
+def except_hook(cls, exception, traceback):
+    sys.__excepthook__(cls, exception, traceback)
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = MainWindow()
+    ex.show()
+    sys.excepthook = except_hook
+    sys.exit(app.exec())
+
