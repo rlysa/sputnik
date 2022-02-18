@@ -27,7 +27,7 @@ def send_file(camera):
 
 
 def request_img():
-    try:                                  
+    try:
         camera = picamera.PiCamera()
         data = send_file(camera)
         return data
