@@ -1,0 +1,44 @@
+"""
+A simple Python script to receive messages from a client over
+Bluetooth using Python sockets (with Python 3.3 or above).
+"""
+#!/bin/python3
+
+
+import base64
+import socket
+import datetime as dt
+
+
+HOSTMACADDRESS = 'B8:27:EB:BC:FC:E9'  # The MAC address of a Bluetooth adapter on the server.
+# The server might have multiple Bluetooth adapters.
+PORT = 11
+backlog = 1
+size = 1024 * 1024
+s = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+s.bind((HOSTMACADDRESS, PORT))
+s.listen(backlog)
+
+def image(data):
+    date = dt.datetime.now().strftime('%Y%b%d-%H%M%S')
+    with open(f'photos/{date}.jpg', 'wb') as file_to_save:
+        decoded_image_data = base64.decodebytes(data)
+        file_to_save.write(decoded_image_data)
+    print(f'photo saved as {date}')
+    
+while 1:
+    try:
+        client, address = s.accept()
+        img = b''
+        while 1:
+            data = client.recv(size)
+            if data == b'END_FILE':
+                break
+            img += data
+        image(img)
+        
+    except Exception as ex:
+        print(ex)
+        print("Closing socket")
+        client.close()
+        #s.close()
